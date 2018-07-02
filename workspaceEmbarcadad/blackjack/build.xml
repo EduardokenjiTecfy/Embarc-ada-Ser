@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!--
+  ** This is an example build.xml file for bundles.  Your bundle will be created
+  ** as ${targetdir}/jars/${projectname}/${projectname}.jar
+  **
+  ** Required steps:
+  ** 1. Set all the required properties.
+  ** 2. Import the bundlebuild_import.xml file.
+  ** 3. Set the bundle.compile.path.
+  ** Optional
+  ** 1. Add a bundle.custom.pre or bundle.custom.post target
+  **    for custom processing.
+  -->
+<project name="blackjack" default="all">
+
+   <!-- Comma sepparated list of a bundles implementation code.
+        Don't need for library or api only bundles.
+        Imports and activator class can be generated from this pattern. -->
+   <property name="impl.pattern" value="com/lexmark/prtapp/blackjack/**" />
+
+   <!-- Comma sepparated list of a bundles public api code.
+        Don't need for library or non api bundles
+        Exports can be generated from this pattern. -->
+   <!-- property name="api.pattern" value="..." / -->
+
+
+   <!-- The following properties control are added to the manifest file.
+        Required properties:
+        Optional properties:
+     -->
+   <property name="bundle.description" value="Black Jack on the printer!!" />
+   <property name="bundle.vendor" value="vendor.name" />
+   <property name="vendor.email" value="vendor.email" />
+   <property name="vendor.website" value="vendor.website" />
+   <property name="vendor.phone" value="vendor.phone" />
+   <property name="vendor.support" value="vendor.support" />
+
+   <property name="app.isapp" value="true" />
+   <property name="bundle.baseresource" value="Resources" />
+
+   <property name="bundle.activator" value="com.lexmark.prtapp.blackjack.Activator" />
+
+   <!-- Memory requirements for this application, in bytes.  This should
+        be a good-faith estimate of the maximum memory this bundle
+        will require. -->
+   <property name="bundle.memory" value="524288" />
+   
+   <!-- classpath for bundles.  Only needed if jars are included in bundle. -->
+   <property name="bundle.classpath" value="." />
+
+   <!-- imports and exports will be generated if not specified here, but if you need the
+        the specification version, you have to specify the imports and exports -->
+   <!-- property name="export.package" value="com.lexmark.prtapp.foo ; specification-version=1.0" / -->
+   <!-- property name="import.package" value="org.ungoverned.gravity.servicebinder ; specification-version=1.1.0" / -->
+   <property name="bundle.metadata" value="Metadata.xml" />
+
+   <!-- Import the bundlebuild_import.xml file. -->
+   <property environment="sysprops" />
+   <import file="${sysprops.LES_SDK}/tools/bundlebuild_import.xml" />
+</project>

@@ -1,0 +1,35 @@
+// Permissions for the matricula bundle
+
+// It uses the same syntax as the standard java policy but you only specify
+// the permission statements.  Here is the syntax:
+//
+// permission <type_name>[[ "target_name"], "actions"];
+//
+// where:
+//    []             optional
+//    <type_name>    the name of the permission class
+//    <target_name>  the target name for the specified permission
+//    <actions>      the actions for the specified permission
+
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.settings.SettingsAdmin", "get";
+
+permission org.osgi.framework.SettingsPermission "com.lexmark.prtapp.settings.SettingsPermission", "get";
+
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.profile.PrtappProfile", "register";
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.profile.PrtappProfile", "register";
+
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.storagedevice.StorageDevice", "get";
+
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.settings.SettingsAdmin", "get";
+
+//permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.welcomescreen.WelcomeScreen", "get";
+
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.objects.NetworkSettings", "get";
+
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.printservice.PrintService", "get";
+
+permission java.net.SocketPermission "*",  "connect,resolve";
+
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.characteristics.DeviceCharacteristicsService", "get";
+
+permission org.osgi.framework.ServicePermission "com.lexmark.prtapp.smbclient.SmbClientService", "get";

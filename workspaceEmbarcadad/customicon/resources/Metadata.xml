@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<!DOCTYPE bundle PUBLIC "-//LES//Service Binder 1.0//EN" "file:./metadata.dtd">
+
+<!-- For more information on Service Binder, see the documentation: http://gravity.sourceforge.net/servicebinder/ 
+	$ packageName = com.lexmark.example.customicon -->
+
+<bundle>
+    <component class="com.lexmark.example.customicon.CustomIconProfile">
+    
+		<!-- This is so ManagedService works properly -->
+		<property name="service.pid" type="string" value="customicon" />
+		<requires service="com.lexmark.prtapp.storagedevice.StorageDevice"
+			filter="(DEVICE_CATEGORY=disk)" cardinality="1..1" policy="dynamic"
+			bind-method="addStorageDevice" unbind-method="removeStorageDevice" />
+		<provides service="org.osgi.service.cm.ManagedService" />
+
+		<!-- We do NOT specify PrtappProfile here - the profile is registered using 
+			code in the component class. -->
+	</component>
+
+</bundle>

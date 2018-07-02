@@ -1,0 +1,21 @@
+<!-- Example of some common setting formations. -->
+<!DOCTYPE settings PUBLIC "-//LES//Settings//EN" "file:./Settings.dtd">
+
+<settings>
+   <global>
+      <!-- This is the icon text. -->
+      <element name="icon.text" type="String">
+         <description value="icon.text.description" />
+         <default value="Custom Icon Example" />
+         <length min="0" max="50" />
+      </element>
+      <element name="icon.upImage" type="BinaryString">
+         <description value="icon.upImage.description" />
+         <length max="10000" />
+      </element>
+      <element name="icon.downImage" type="BinaryString">
+         <description value="icon.downImage.description" />
+         <length max="10000" />
+      </element>
+   </global>
+</settings>

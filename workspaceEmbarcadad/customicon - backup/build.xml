@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!--
+  ** Bundle build file.  For more information, see the SDK
+  ** example build file: tools/example_bundle_build.xml
+  -->
+<project name="customicon" default="all">
+   <!-- Comma sepparated list of a bundles implementation code.
+        Don't need for library or api only bundles.
+        Imports and activator class can be generated from this pattern. -->
+   <property name="impl.pattern" value="com/lexmark/example/customicon/**" />
+
+   <property name="external.impl.pattern" value="org/apache/commons/**, org/json/simple/**" />
+	
+   <!-- Comma sepparated list of a bundles public api code.
+        Don't need for library or non api bundles
+        Exports can be generated from this pattern. -->
+   <!-- property name="api.pattern" value="..." / -->
+
+   <property name="bundle.description" value="Custom Icon Example" />
+   
+
+   <property name="app.isapp" value="true" />
+   <property name="bundle.baseresource" value="Resources" />
+
+   <!-- Maximum memory, in bytes, this bundle should use.  Increase if necessary. -->
+   <property name="bundle.memory" value="5242880" />
+
+   <property name="app.settings" value="Settings.xml" />
+
+   <property name="bundle.activator" value="com.lexmark.example.customicon.Activator" />
+   <property name="standard.imports" value="org.apache.commons.lang,org.apache.commons.net.ftp,org.json.simple" />
+	
+   	<property name="framework.compile.version" value="fw2"/> 
+    
+
+   <property name="bundle.metadata" value="Metadata.xml" />
+   
+   <!-- This ensures the bundle compiles against the correct set of libraries -->
+   <property name="framework.compile.version" value="fw1"/> 
+
+	
+ 	<property name="bundle.classpath" value=".,net/*.jar" />
+
+   <!-- Following property will pick all the settings for LES_SDK environment
+   variable as mentioned in installation guide -->
+   <property environment="sysprops" />
+   <import file="${sysprops.LES_SDK}/tools/bundlebuild_import.xml" />
+   	<fileset id="bundle.external.jar.1" dir="net" includes="*.jar" />
+   		
+
+   <!-- The following build path can be used to include component bundles
+        in the flash file. -->
+   <!--
+   <path id="flash.components">
+      <fileset dir="${sysprops.LES_SDK}/components" includes="printservice.jar" />
+   </path>
+   -->
+
+</project>

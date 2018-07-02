@@ -1,0 +1,84 @@
+package com.lexmark.example.customicon;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.SocketException;
+
+
+public class SendFile
+{
+
+   public SendFile(File file, String categoria, String idDocumento )throws SocketException, IllegalStateException, IOException, Exception 
+   { 
+         
+ 
+	    Activator.getLog().debug("SEND FILE _________________________________________ PORRA " );
+   
+   }
+   public static void Execs(String categoria, String idDocumento,
+			byte[] arquivo) throws Exception {
+
+		String URLFormat = "http://35.192.175.82/webTeste/RequestService.asmx/insertDocument";
+
+		URL url = new URL(URLFormat);
+
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+		conn.setDoOutput(true);
+		conn.setRequestMethod("POST");
+		conn.setRequestProperty("Content-Type", "application/json");
+		conn.connect();
+		Activator
+				.getLog()
+				.debug("------------------------------------ENVIO------------------------------------");
+		String es = "";
+		try {
+			es = base.encode(arquivo);
+			Activator.getLog().debug(es);
+		} catch (Exception e) {
+			// TODO: handle exceptio
+			Activator
+					.getLog()
+					.debug("FDPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
+		}
+		String input = "{  \"id\": \"" + es + "\", \"ra\":\"" + idDocumento
+				+ "\", \"categoria\":\"" + categoria + "\"}";
+		// String input = "{  \"id\": \"" + es + "\", \"ra\":\"" + idDocumento +
+		// "\"}";
+
+		// String input = "{  \"id\": " + es + ", \"ra\": " + idDocumento + "}";
+		// String input = "{  \"id\": \"" + es + "\"}";
+
+		OutputStream outputStream = conn.getOutputStream();
+		outputStream.write(input.getBytes());
+		outputStream.flush();
+
+		if (conn.getResponseCode() == 200) {
+
+			JSONParser parser = new JSONParser();
+
+			BufferedReader bufferReader = new BufferedReader(
+					new InputStreamReader(conn.getInputStream(), "UTF-8"));
+
+			Object obj = parser.parse(bufferReader);
+
+			JSONObject jsonObject = (JSONObject) obj;
+
+			String isConcluid = (String) jsonObject.get("d");
+
+			conn.disconnect();
+		} else {
+
+			conn.disconnect();
+
+			Activator.getLog().debug(
+					"Simplismente não funciono.\n\n \n\n Cod erro:"
+							+ conn.getResponseCode() + "  \nMSG: "
+							+ conn.getResponseMessage());
+			throw new Exception();
+
+		}
+
+	}
+
+}

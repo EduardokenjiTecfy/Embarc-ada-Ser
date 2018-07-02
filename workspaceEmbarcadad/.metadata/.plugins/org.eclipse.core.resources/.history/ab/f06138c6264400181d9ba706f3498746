@@ -1,0 +1,759 @@
+package com.lexmark.example.customicon;
+
+import org.ungoverned.gravity.servicebinder.Lifecycle;
+import org.ungoverned.gravity.servicebinder.ServiceBinderContext;
+
+import com.lexmark.prtapp.newprompt.NumericStringPrompt;
+import com.lexmark.prtapp.newprompt.StringPrompt;
+import com.lexmark.prtapp.profile.BasicNavigator;
+import com.lexmark.prtapp.profile.BasicProfileContext;
+import com.lexmark.prtapp.profile.PrtappProfile;
+import com.lexmark.prtapp.profile.PrtappProfileException;
+import com.lexmark.prtapp.profile.WelcomeScreenable;
+import com.lexmark.prtapp.std.prompts.ComboPrompt;
+import com.lexmark.prtapp.std.prompts.MessagePrompt;
+import com.lexmark.prtapp.storagedevice.StorageDevice;
+import com.lexmark.prtapp.prompt.PromptException;
+import com.lexmark.prtapp.prompt.PromptFactory;
+import com.lexmark.prtapp.prompt.PromptFactoryException;
+import com.lexmark.prtapp.util.Messages;
+
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import java.util.Locale;
+
+public class CustomIconProfile implements PrtappProfile, WelcomeScreenable,
+		Lifecycle, ManagedService {
+	// ServiceBinder context - we can get a BundleContext from it
+	private ServiceBinderContext sbc = null;
+
+	// Are we active?
+	boolean activated = false;
+
+	// The icon text.
+	private String iconText = null;
+
+	// The icon's up image.
+	private byte[] iconUpImage = null;
+
+	// The icon's down image.
+	private byte[] iconDownImage = null;
+
+	// Profile's registration
+	private ServiceRegistration profileRegistration = null;
+
+	/**
+	 * Constructor called by Service Binder. We need to keep track of the
+	 * context, since it allows us access to our own bundle.
+	 */
+	private static StorageDevice _disk = null;
+
+	public static StorageDevice getDisk() {
+		Activator.getLog().debug("Disk get-----------------------");
+		return _disk;
+	}
+
+	public CustomIconProfile(ServiceBinderContext sbc) {
+
+		Disk = getDisk();
+		this.sbc = sbc;
+	}
+
+	public void addStorageDevice(StorageDevice svc) {
+		_disk = svc;
+
+	}
+
+	public void removeStorageDevice(StorageDevice svc) {
+		_disk = null;
+
+	}
+
+	/**
+	 * PrtappProfile
+	 */
+	public String getId() {
+		return "CustomIconProfile";
+	}
+
+	/**
+	 * PrtappProfile
+	 */
+	public String getName(Locale locale) {
+		Messages messages = new Messages("Resources", locale, getClass()
+				.getClassLoader());
+		return messages.getString("profile.name");
+	}
+
+	/**
+	 * PrtappProfile
+	 */
+	public int getShortcut() {
+		return 0;
+	}
+
+	/**
+	 * PrtappProfile
+	 */
+	public boolean showInHeldJobsList() {
+		// This only has an effect for framework 2.0 and above
+		return true;
+	}
+
+	public static int TIMEOUT = 120;
+
+	/**
+	 * PrtapProfile
+	 */
+
+	private void MenuTipoBusca(BasicProfileContext context)
+			throws PromptFactoryException, PromptException {
+
+		SingleBooleanPrompt promptMenuPrincipal = new SingleBooleanPrompt();
+		promptMenuPrincipal.setLabel("Escolha o metodo de busca para o aluno");
+		promptMenuPrincipal.setLabelFalse("Matrícula");
+
+
+		context.displayPrompt(promptMenuPrincipal, TIMEOUT);
+		if (promptMenuPrincipal.getDismissButton().equalsIgnoreCase("back")) {
+
+		} else if (promptMenuPrincipal.getSelection()) {
+
+		} else {
+
+		}
+
+	}
+	public boolean promptIndexacaoData(PromptFactory pf,
+			BasicProfileContext context) {
+		boolean retorno = true;
+		
+		MessagePrompt messageConfirmStudent = null;
+		try {
+			messageConfirmStudent = (MessagePrompt) pf
+					.newPrompt(MessagePrompt.ID);
+		} catch (PromptFactoryException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		messageConfirmStudent.setLabel("Atenção");
+		messageConfirmStudent
+				.setMessage("Digite uma data Valida");
+
+		try {
+			context.displayPrompt(messageConfirmStudent, TIMEOUT);
+		} catch (PromptException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		StringPrompt promptDataInputName = null;
+		try {
+			promptDataInputName = (StringPrompt) pf.newPrompt(StringPrompt.ID);
+		} catch (PromptFactoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		promptDataInputName
+				.setLabel("Informe a data  do aluno:    (Formato DD/MM/AAAA)   ");
+
+		String dataAtributo = "";
+		String identificacaoAtributo = "";
+
+		String data = "#D";
+		String identificacao = "#I";
+
+		try {
+			context.displayPrompt(promptDataInputName, TIMEOUT);
+		} catch (PromptException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+			String dateInString = promptDataInputName.getValue();
+
+			Date date = formatter.parse(dateInString);
+			dataAtributo = dateInString;
+			retorno = true;
+		} catch (Exception e) {
+			retorno = false;
+
+		}
+		return retorno;
+	}
+
+	private void ProcessUiNew(BasicProfileContext context)
+			throws PromptFactoryException, PromptException {
+
+		MenuTipoBusca(context);
+
+	}
+
+	private void isStudent(BasicProfileContext context, Student student)
+			throws PromptFactoryException, PromptException {
+
+		PromptFactory pf = context.getPromptFactory();
+
+		Activator.getLog().debug(
+				"ESTUDANTE Selecionado \n\n" + student.getNOMEALUNO());
+
+		BasicNavigator navbar = (BasicNavigator) context.getNavigator();
+		navbar.showNextButton(true);
+		navbar.showBackButton(true);
+		navbar.showStartButton(false);
+		navbar.setNextButtonLabel("Confirmar");
+		navbar.setBackButtonLabel("Voltar");
+
+		MessagePrompt messageConfirmStudent;
+		messageConfirmStudent = (MessagePrompt) pf.newPrompt(MessagePrompt.ID);
+		messageConfirmStudent.setLabel("Confirme o aluno:");
+		messageConfirmStudent.setMessage("Nome: "
+				+ student.getNOMEALUNO().trim() + "\n Matrícula: "
+				+ student.getRA().trim() + "\n Curso: "
+				+ student.getNOMECURSO().trim() + "\n CPF: "
+				+ student.getCPFALUNO().trim() + "\n");
+
+		context.displayPrompt(messageConfirmStudent, TIMEOUT);
+
+		if (messageConfirmStudent.getDismissButton().equalsIgnoreCase("back")) {
+			ProcessUiNew(context);
+		} else if (messageConfirmStudent.getDismissButton().equalsIgnoreCase(
+				"cancel")) {
+			context.cancel();
+
+		} else {
+
+			MenuSelectDoc(context, student);
+
+		}
+
+	}
+
+	private void MenuSelectDoc(BasicProfileContext context, Student student) {
+		Activator.getLog().debug("Executando o processo meu aluno!");
+
+		Document[] document = null;
+
+		try {
+			document = ListDocuments.Exec(
+					"http://35.192.175.82/webTeste/RequestService.asmx",
+					student.getRA(), student.getCODCURSO());
+
+		} catch (Exception e) {
+
+			// isFalhaProcess(context,
+			// "Falha ao listar os documentos dos aluno." + e.getMessage());
+
+		}
+
+		if (document != null) {
+
+			getDocument(context, student, document);
+
+		}
+
+	}
+
+	private static StorageDevice Disk ;
+
+	private boolean ProcessScans(BasicProfileContext context, String fileName,
+			String Document,String ra,String categoria) {
+
+		
+		StorageDevice sdf = getDisk();
+		
+		
+		Activator.getLog().debug(
+		"--------ProcessScan para ProcessScan --------------");
+		if(sdf != null){
+			Activator.getLog().debug(
+			"--------Disk dif CARALHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO  --------------");
+		}
+		else{
+			Activator.getLog().debug(
+			"--------Disk  é null   CARALHOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO-------------");
+		}
+		try {
+			return Scan.exec(sdf, context, fileName, Document,null,ra,categoria);
+		} catch (SocketException e) {
+			// isFalhaProcess(context, "Falha no processo de digitalização." +
+			// e.getMessage());
+
+		} catch (IllegalStateException e) {
+			// isFalhaProcess(context, "Falha no processo de digitalização." +
+			// e.getMessage());
+
+		} catch (IOException e) {
+			// isFalhaProcess(context, "Falha no processo de digitalização." +
+			// e.getMessage());
+
+		} catch (Exception e) {
+			// isFalhaProcess(context, "Falha no processo de digitalização." +
+			// e.getMessage());
+
+		}
+		return false;
+
+	}
+
+	private String getDateNow() {
+
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		Date datenow = new Date();
+		return dateFormat.format(datenow);
+	}
+
+	private void FinnalyScanDocument(BasicProfileContext context,
+			Student student, Document document) throws PromptException {
+		Activator.getLog().debug(
+		"--------entrando para finalizar --------------");
+		if (document != null) {
+			
+			Activator.getLog().debug(
+			"--------Docuemnto Diferente de nuloooooooooo  --------------");
+			
+			String fileNameOut = student.getRA() + "_" + getDateNow();
+
+			String FileNameImge = fileNameOut + ".tif";
+
+		 
+
+			if (ProcessScans(context, FileNameImge, document.getName(), student.getRA(),document.getCod())) {
+
+				try {
+					MenuSelectDoc(context, student);
+					// new SendBuffer(fileNameOut, inxContent);
+
+					try {
+						// UpdateDocumentList.Exec(URLWEBSERVICE,
+						// student.getRA(), document.getCod());
+						//
+					} catch (Exception e) {
+
+						// isFalhaProcess(context,
+						// "Falha ao atualizar a lista de documentos do aluno.");
+
+					}
+
+				} catch (Exception e) {
+
+					// isFalhaProcess(context,
+					// "Falha no processo de envio dos indices para o servidor"
+					// + e.getMessage());
+				}
+
+			}
+
+			/*
+			 * if (newDocForStudent(context)) {
+			 * 
+			 * MenuSelectDoc(context, student);
+			 * 
+			 * }
+			 * 
+			 * ProcessReport(context, student);
+			 */
+
+		}
+
+	}
+
+	private void getDocument(BasicProfileContext context, Student student,
+			Document[] document) {
+	
+		PromptFactory pf = context.getPromptFactory();
+		String[] listNamedoc = new String[document.length];
+
+		for (int k = 0; k < document.length; k++) {
+			listNamedoc[k] = document[k].getName();
+		}
+
+		BasicNavigator navbar = (BasicNavigator) context.getNavigator();
+		navbar.showNextButton(true);
+		navbar.setNextButtonLabel("Confirmar");
+		navbar.setStartButtonLabel("Finalizar");
+		navbar.showStartButton(true);
+
+		ComboPrompt comBoListDoc;
+		try {
+			comBoListDoc = (ComboPrompt) pf.newPrompt(ComboPrompt.ID);
+			comBoListDoc.setLabel("Selecione o documento para digitalização:");
+			comBoListDoc.setItems(listNamedoc);
+			context.displayPrompt(comBoListDoc, TIMEOUT);
+
+			if (comBoListDoc.getDismissButton().equalsIgnoreCase("back")) {
+				ProcessUiNew(context);
+			} else if (comBoListDoc.getDismissButton()
+					.equalsIgnoreCase("start")) {
+				// ProcessReport(context, student);
+			} else {
+				Activator.getLog().debug(
+						"--------FINALIZANDO --------------");
+				FinnalyScanDocument(context, student,
+						document[comBoListDoc.getSelection()]);
+			}
+		} catch (PromptFactoryException e) {
+			Activator.getLog().debug(
+					"Prompt Cancelado pelo usuário \n\n " + e.getMessage());
+		} catch (PromptException e) {
+			Activator.getLog().debug(
+					"Prompt Cancelado pelo usuário \n\n " + e.getMessage());
+		}
+
+	}
+
+	private void validStudents(BasicProfileContext context, Student[] students)
+			throws PromptFactoryException, PromptException {
+
+		PromptFactory pf = context.getPromptFactory();
+
+		if (students.length > 0) {
+
+			if (students.length == 1) {
+				Activator.getLog().debug("Estudante igual a 1\n\n ");
+				isStudent(context, students[0]);
+			}
+
+			if (students.length > 1) {
+				String[] namesStudents = new String[students.length];
+				for (int i = 0; i < students.length; i++) {
+					namesStudents[i] = students[i].getNOMEALUNO().trim();
+				}
+
+				BasicNavigator navbar = (BasicNavigator) context.getNavigator();
+				navbar.showNextButton(true);
+				navbar.showBackButton(true);
+				navbar.showStartButton(false);
+				navbar.setNextButtonLabel("Confirmar");
+				navbar.setBackButtonLabel("Voltar");
+
+				ComboPrompt comBoStudent = (ComboPrompt) pf
+						.newPrompt(ComboPrompt.ID);
+				comBoStudent.setLabel("Selecione o aluno encontrado:");
+				comBoStudent.setItems(namesStudents);
+
+				context.displayPrompt(comBoStudent, TIMEOUT);
+
+				if (comBoStudent.getDismissButton().equalsIgnoreCase("back")) {
+					ProcessUiNew(context);
+
+				}
+
+				isStudent(context, students[comBoStudent.getSelection()]);
+			}
+		} else {
+			Activator.getLog().debug("Estudante não encontrado \n\n ");
+			isSimpleMsg(context, "Não encontrado estudantes na busca.",
+					"Informação");
+			ProcessUiNew(context);
+		}
+
+	}
+
+	private static void isSimpleMsg(BasicProfileContext context, String Msg,
+			String Label) {
+
+		PromptFactory pf = context.getPromptFactory();
+
+		try {
+
+			BasicNavigator navbar = (BasicNavigator) context.getNavigator();
+			navbar.showNextButton(true);
+			navbar.showBackButton(false);
+			navbar.showStartButton(false);
+			navbar.setNextButtonLabel("Continuar");
+
+			MessagePrompt messageSimpleMsg;
+
+			messageSimpleMsg = (MessagePrompt) pf.newPrompt(MessagePrompt.ID);
+			messageSimpleMsg.setLabel(Label);
+			messageSimpleMsg.setMessage(Msg);
+			context.displayPrompt(messageSimpleMsg, TIMEOUT);
+
+		} catch (PromptFactoryException pfe) {
+			Activator.getLog().debug(
+					"Falha na execução do prompr de SimpleMSG", pfe);
+		} catch (PromptException e) {
+			Activator.getLog().debug(
+					"Falha na execução do prompr de SimpleMSG", e);
+
+		}
+
+	}
+
+	private void findStudentByRA(BasicProfileContext context)
+			throws PromptException, PromptFactoryException {
+
+		PromptFactory pf = context.getPromptFactory();
+
+		BasicNavigator navbar = (BasicNavigator) context.getNavigator();
+		navbar.showNextButton(true);
+		navbar.showBackButton(true);
+		navbar.showStartButton(false);
+		navbar.setNextButtonLabel("Buscar");
+		navbar.setBackButtonLabel("Menu");
+
+		NumericStringPrompt promptInterRa = (NumericStringPrompt) pf
+				.newPrompt(NumericStringPrompt.ID);
+		promptInterRa.setLabel("Informe o número da matrícula do aluno:");
+		context.displayPrompt(promptInterRa, TIMEOUT);
+
+		if (promptInterRa.getDismissButton().equalsIgnoreCase("back")) {
+			ProcessUiNew(context);
+		} else {
+
+			Student[] students = null;
+
+			try {
+				// /
+				Activator.getLog().debug("Indo ao menu principal. \n\n");
+				students = StudentByRa.find(
+						"http://35.192.175.82/webTeste/RequestService.asmx",
+						String.valueOf(promptInterRa.getValue()));
+				// students =
+				// StudentByRa.find("http://35.192.175.82/webTeste/RequestService.asmx",
+				// String.valueOf(promptInterRa.getValue()));
+			} catch (Exception e) {
+				// isFalhaProcess(context,
+				// "Falha ao executar a busca do por nome, informe o administrador: "
+				// + e.getMessage());
+			}
+
+			if (students != null) {
+				validStudents(context, students);
+			}
+		}
+	}
+
+	private void findStudentByName(BasicProfileContext context)
+			throws PromptFactoryException, PromptException {
+
+		PromptFactory pf = context.getPromptFactory();
+
+		BasicNavigator navbar = (BasicNavigator) context.getNavigator();
+		navbar.showNextButton(true);
+		navbar.showBackButton(true);
+		navbar.showStartButton(false);
+		navbar.setNextButtonLabel("Buscar");
+		navbar.setBackButtonLabel("Menu");
+
+		StringPrompt promptInputName = (StringPrompt) pf
+				.newPrompt(StringPrompt.ID);
+		promptInputName.setLabel("Informe o nome do aluno:");
+		context.displayPrompt(promptInputName, TIMEOUT);
+
+		if (promptInputName.getDismissButton().equalsIgnoreCase("back")) {
+			Activator.getLog().debug("Indo ao menu principal. \n\n");
+			ProcessUiNew(context);
+
+		} else {
+
+		}
+	}
+
+	public void go(BasicProfileContext context) throws PrtappProfileException {
+
+		// There's not much interesting going on in the profile itself - it
+		// is
+		// oblivious to its name or icon
+		PromptFactory pf = context.getPromptFactory();
+		try {
+
+			SingleBooleanPrompt promptMenuPrincipal = new SingleBooleanPrompt();
+			promptMenuPrincipal
+					.setLabel("Escolha o metodo de busca para o aluno");
+			promptMenuPrincipal.setLabelFalse("Matrícula");
+		
+
+			context.displayPrompt(promptMenuPrincipal, TIMEOUT);
+
+			if (promptMenuPrincipal.getDismissButton().equalsIgnoreCase("back")) {
+				ProcessUiNew(context);
+			} else if (promptMenuPrincipal.getSelection()) {
+				StorageDevice sdf = getDisk();
+				
+				if(sdf == null){
+					Activator.getLog().debug("Disk nulo");
+					ProcessUiNew(context);
+				}else{
+					Activator.getLog().debug("Disk NÂO  nulo");
+				}
+				
+			//	findStudentByName(context);
+
+			} else {
+				findStudentByRA(context);
+			}
+
+		} catch (PromptException e) {
+			// Don't worry about this, probably just a profile cancelled
+			// exception
+		} catch (Exception e) {
+			Activator.getLog().debug("Problem running profile", e);
+		}
+	}
+
+	/**
+	 * WelcomeScreenable
+	 */
+	public String getIconText(Locale locale) {
+		return iconText;
+	}
+
+	/**
+	 * WelcomeScreenable
+	 */
+	public InputStream getUpIcon() {
+		// Handle the degenerate cases of null and 0-byte array
+		if (iconUpImage == null || iconUpImage.length == 0) {
+			return null;
+		} else {
+			return new ByteArrayInputStream(iconUpImage);
+		}
+	}
+
+	/**
+	 * WelcomeScreenable
+	 */
+	public InputStream getDownIcon() {
+		// Handle the degenerate cases of null and 0-byte array
+		if (iconDownImage == null || iconDownImage.length == 0) {
+			return null;
+		} else {
+			return new ByteArrayInputStream(iconDownImage);
+		}
+	}
+
+	/**
+	 * WelcomeScreenable
+	 */
+	public String getWorkflowOveride() {
+		// We never override any standard functions, so just return null
+		return null;
+	}
+
+	/**
+	 * ManagedService
+	 */
+	public void updated(Dictionary settings) throws ConfigurationException {
+		// This gets called whenever the settings change. This can happen
+		// asynchronously to the rest of the application, so do not make
+		// any assumptions. For example, this could get called before
+		// activate() is called, or after deactivate() has been called.
+		// In this example, the "updateIcon" method takes care of this,
+		// and checks to ensure this class is active before trying to
+		// register the profile.
+		//
+		// NOTE that the settings passed in can be null. This will happen
+		// if the settings were deleted or were never set to begin with.
+		if (settings != null) {
+			// If we get new settings, check to see what they are, and
+			// update the icon accordingly.
+			boolean iconNeedsUpdate = false;
+
+			// Log out all of the settings that we got.
+			Activator.getLog().debug("We got new settings!");
+			Enumeration elems = settings.keys();
+			while (elems.hasMoreElements()) {
+				String key = elems.nextElement().toString();
+				Object value = settings.get(key);
+				Activator.getLog().debug("\t" + key + " = " + value);
+
+				if (key.equals("icon.text")) {
+					iconNeedsUpdate = true;
+					iconText = (String) value;
+				} else if (key.equals("icon.upImage")) {
+					iconNeedsUpdate = true;
+					iconUpImage = (byte[]) value;
+				} else if (key.equals("icon.downImage")) {
+					iconNeedsUpdate = true;
+					iconDownImage = (byte[]) value;
+				}
+			}
+
+			// Now that we've processed and updated all the settings, if we need
+			// to update
+			// the icon, do it now!
+			if (iconNeedsUpdate)
+				updateIcon();
+		}
+	}
+
+	/**
+	 * Helper function to trigger an icon update. This is done by unregistering
+	 * the profile (if it is registered), and then re-registering it. It will
+	 * only re-register if this class is active.
+	 */
+	private void updateIcon() {
+		// We will always unregister the profile if it has been registered,
+		// since
+		// that is the only way to get the icon to change.
+		if (profileRegistration != null) {
+			profileRegistration.unregister();
+			profileRegistration = null;
+		}
+
+		// If we are activated, we need to re-register the profile. We keep
+		// track of the
+		// registration so we can unregister it later (done in the block above,
+		// next time
+		// this method is called.)
+		if (activated) {
+			// This is boilerplate to an extent. This dictionary can be used to
+			// set up
+			// service properties, but this profile does not have any.
+			Dictionary dict = new Hashtable();
+
+			// The first parameter is the class name of the service interface to
+			// register.
+			// We can specify multiple interfaces here if we need to - there is
+			// an overload
+			// that accepts an array of strings. The second parameter is the
+			// actual
+			// implementation class, and it must implement all interfaces
+			// specified
+			// in the first parameter.
+			profileRegistration = sbc.getBundleContext().registerService(
+					"com.lexmark.prtapp.profile.PrtappProfile", this, dict);
+		}
+	}
+
+	/**
+	 * ServiceBinder method from Lifecycle. Called when all dependencies have
+	 * been met and this class has become active. This is the perfect place to
+	 * do any service registration manually (not done in Metadata.xml).
+	 */
+	public synchronized void activate() {
+		// Once we are active, it's safe to register the profile
+		activated = true;
+		updateIcon();
+	}
+
+	/**
+	 * ServiceBinder method from Lifecycle. Called when the app is being
+	 * stopped, uninstalled, or one of its dependencies goes away, causing this
+	 * class to become inactive. This is a good place to do clean-up, such as
+	 * unregistering any services that were registered manually (such as in
+	 * "activate").
+	 */
+	public synchronized void deactivate() {
+		// The call to updateIcon will see that we are not active, and then
+		// unregister
+		// the profile accordingly.
+		activated = false;
+		updateIcon();
+	}
+}
